@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import EvilerUser, ActiveModule, Module, News, Update
+from .models import EvilerUser,  Module, News, Update
 
 
 class ModuleSerializer(serializers.ModelSerializer):
@@ -7,10 +7,10 @@ class ModuleSerializer(serializers.ModelSerializer):
         model = Module
         fields = "__all__"
 
-class ActiveModuleSerializer(serializers.ModelSerializer):
+"""class ActiveModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActiveModule
-        fields = ["module", "expired_data"]
+        fields = ["module", "expired_data"]"""
 
 
 class EvilerUserSerializer(serializers.ModelSerializer):
@@ -21,9 +21,9 @@ class EvilerUserSerializer(serializers.ModelSerializer):
        fields = ["id", "Discord", "active_modules"]
 
    def get_active_modules(self, obj):
-       active_modules = ActiveModule.objects.filter(owner=obj)
-       return ActiveModuleSerializer(active_modules, many=True).data
-
+       """active_modules = ActiveModule.objects.filter(owner=obj)
+       return ActiveModuleSerializer(active_modules, many=True).data"""
+       return None
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
