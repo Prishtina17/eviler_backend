@@ -24,12 +24,19 @@ export default function WalletAdaptor() {
     const signature = base58.encode(signedMessage);
 
     const response = await axios.post("http://127.0.0.1:8000/api/login/", {"public-key": publicKey, "signature" : signature, "msg": message});
+    const token = response["data"]["access"]
+    const config = {
+     headers: {
+         'Content-Type': 'application/json', // Указывает, что тело запроса содержит JSON
+        'Accept': 'application/json',
+        "Authorization": `Bearer ${token}`
+     }
+    };
+    const response2 = await axios.get("http://127.0.0.1:8000/api/ping/", config)
+    const news = await axios.get("http://127.0.0.1:8000/api/modules/", config)
+    console.log(news)
 
-   //alert("penis")
-    console.log("signed message: " + signedMessage)
-    console.log("signature: "+ signature)
-    console.log(response)
-    console.log("penis")
+
     try {
       const { error } = await signIn("credentials", {
         message,

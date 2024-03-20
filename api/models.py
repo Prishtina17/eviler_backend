@@ -83,7 +83,7 @@ class ImageModel(models.Model):
 class News(models.Model):
     article = models.CharField(name="Article", max_length=100, default="article")
     text = models.TextField(name="Text",default="text")
-    images = models.ManyToManyField(ImageModel, name="Images")
+    images = models.ManyToManyField(ImageModel, name="Images", null=True)
     pub_date = models.DateField(default=django.utils.timezone.now)
 
     def __str__(self):

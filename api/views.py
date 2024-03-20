@@ -7,12 +7,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes, api_view
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics, viewsets, status
 from django.contrib.auth import authenticate, login, user_logged_in
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import UntypedToken
+
 from .serializers import EvilerTokenObtainPairSerializer
 
 from solders.pubkey import Pubkey
@@ -48,7 +52,7 @@ class DetailUser(APIView):
     def get(self, request):
         pass
 class ListModules(APIView):
-
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             modules = Module.objects.all()
@@ -60,6 +64,7 @@ class ListModules(APIView):
 
 
 class ListNews(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             news = News.objects.all()
@@ -78,35 +83,14 @@ class ListUpdates(APIView):
         return Response(serializer.data)
 
 
-"""def get_last_update(request):
-    #if not request.user.is_authenticated:
-    #    return HttpResponse(status=403)
-    if request.method == "GET":
-        try:
-            last_update = Update.objects.last()
-        except Update.DoesNotExist:
-            return HttpResponse(status=404)
-        file_handle = last_update.file.open()
-        response = FileResponse(file_handle, content_type="file")
-        response['Content-Length'] = last_update.file.size
-        response['Content-Disposition'] = 'attachment; filename="%s.zip"' % last_update.Article
-
-        return response"""
 
 
-def discord_login(request):
-    return redirect(AUTH_DISCORD_URL)
 
 
-def discord_login_redirect(request):
-    code = request.GET.get("code")
-    user = exchange_code(code)
-    request.META["discord_user"] = user
-    eviler_user = authenticate(request)
-    return JsonResponse(user)
 
 @csrf_exempt
 @permission_classes([AllowAny, ])
+@api_view(('POST',))
 def solana_auth(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -133,37 +117,23 @@ def solana_auth(request):
         try:
             serializer = EvilerTokenObtainPairSerializer(context= {"request":request})
             data = serializer.validate()
-            return JsonResponse({"response":data})
+            return Response({"refresh": data["refresh"], "access": data["access"]})
         except Exception as e:
             return Response(e)
 
     return HttpResponse(status=405)
 
+
+
 @csrf_exempt
+@permission_classes([IsAuthenticated ])
+@api_view(("GET",))
 def ping(request):
-    if request.method == "GET":
-        return JsonResponse({"status":{request.user.is_authenticated}})
+    response = JWTAuthentication().authenticate(request)
+
+    return Response({"public_key":response[0].public_key})
 
 
 
-def exchange_code(code):
-    data = {
-        "client_id": str(CLIENT_ID),
-        "client_secret": CLIENT_SECRET,
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": "http://127.0.0.1:8000/api/login/redirect",
-        "scope": "identify"
-    }
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    response = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers)
-    access_token = response.json()["access_token"]
-    response = requests.get("https://discord.com/api/v10/users/@me", headers={
-        "Authorization": "Bearer %s" % access_token
-    })
-    user = response.json()
-    print(user)
-    return user
+
 

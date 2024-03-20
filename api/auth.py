@@ -42,4 +42,5 @@ class SolanaAuthentication(authentication.BaseAuthentication):
             user = EvilerUser.objects.create_user_from_public_key(public_key_str)
 
 
+
         return (user, None)

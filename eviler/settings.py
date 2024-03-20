@@ -28,7 +28,8 @@ SECRET_KEY = 'django-insecure-e(q@2y(*t7426k6tz-^+vyvkd6xvk@-_b$%^x@nv&plysxs=yq
 DEBUG = True
 
 AUTHENTICATION_BACKENDS = [
-    "api.auth.SolanaAuthentication"
+    "api.auth.SolanaAuthentication",
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 SIMPLE_JWT = {
@@ -95,8 +96,8 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS":"drf_spectacular.openapi.AutoSchema",
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 
-    ]
 }
 
 MIDDLEWARE = [
