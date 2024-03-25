@@ -27,6 +27,13 @@ SECRET_KEY = 'django-insecure-e(q@2y(*t7426k6tz-^+vyvkd6xvk@-_b$%^x@nv&plysxs=yq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SOLANA_RPC_NODES = [
+    "https://api.mainnet-beta.solana.com"
+]
+
+ASGI_APPLICATION = 'eviler.asgi.application'
+
+
 AUTHENTICATION_BACKENDS = [
     "api.auth.SolanaAuthentication",
     'django.contrib.auth.backends.ModelBackend',

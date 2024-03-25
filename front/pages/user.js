@@ -1,3 +1,4 @@
+import CheckTransaction from "../app/components/ConfirmTransaction";
 import React, { useEffect, useTransition } from "react";
 import styles from "../styles/User.module.css";
 import { getSession, signOut } from "next-auth/react";
@@ -47,11 +48,13 @@ export default function Home({ userSession }) {
           <div className={styles.card}>
             <>
               <UserData />
+              <CheckTransaction />
               <div className={styles.buttonsRow}>
                 {connected || disconnecting ? (
                   <WalletDisconnectButton />
                 ) : (
                   <LogoutBtn />
+
                 )}
               </div>
             </>

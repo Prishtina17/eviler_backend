@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import PhantomBtn from "../app/components/loginBtn/phantomBtn";
 import SolflareBtn from "../app/components/loginBtn/solflareBtn";
 import WalletAdaptor from "../app/components/loginBtn/walletAdaptor";
-
+import CheckTransaction from "../app/components/ConfirmTransaction";
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();

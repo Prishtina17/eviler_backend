@@ -39,7 +39,7 @@ class EvilerUser(AbstractUser):
     username = models.CharField(name="username", unique=True)
     password = models.CharField(name="password", null=True)
     email = models.EmailField(null=True)
-    license_key = models.ForeignKey("LicenseKey",name="licenseKey", null=True, on_delete=models.CASCADE)
+    #license_key = models.ForeignKey("LicenseKey",name="license_key", null=True, on_delete=models.CASCADE)
 
     public_key = models.CharField(name="public_key", max_length=44, default="", unique=True)
 

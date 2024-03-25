@@ -16,6 +16,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import UntypedToken
+from solana.rpc.api import Client
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.commitment import Confirmed, Processed
+from solders.signature import Signature
 
 from .serializers import EvilerTokenObtainPairSerializer
 
@@ -48,9 +52,14 @@ def get_user_data(request, user_id: int):
             return HttpResponse(status=404)
         serializer = EvilerUserSerializer(user)
         return JsonResponse(serializer.data)
+
 class DetailUser(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        pass
+        user = request.user
+        data = EvilerUserSerializer(user).data
+        return Response(data)
 class ListModules(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -81,10 +90,6 @@ class ListUpdates(APIView):
             return HttpResponse(status=404)
         serializer = UpdateSerializer(updates, many=True)
         return Response(serializer.data)
-
-
-
-
 
 
 
@@ -123,7 +128,34 @@ def solana_auth(request):
 
     return HttpResponse(status=405)
 
+@csrf_exempt
+@api_view(("POST",))
+@permission_classes([IsAuthenticated])
+def check_transaction_commitment(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        transaction_public_key = data.get("transaction_public_key")
+        print(transaction_public_key)
+        rpc_nodes = settings.SOLANA_RPC_NODES
+        for rpc_node in rpc_nodes:
+            print(rpc_node)
+            client = Client(rpc_node)
+            if client.is_connected():
+                print("penis")
+                t = client.get_transaction(Signature.from_string(transaction_public_key))
 
+                resp = client.get_signature_statuses([Signature.from_string(transaction_public_key)])
+                resp_value = resp.value[0]
+
+
+
+                print(t)
+                print(resp)
+
+            else:
+                continue
+        return Response({"error":"No rpc nodes available"})
+    return HttpResponse(status=405)
 
 @csrf_exempt
 @permission_classes([IsAuthenticated ])

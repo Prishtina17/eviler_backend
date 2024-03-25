@@ -6,7 +6,7 @@ import base58 from "bs58";
 import { signIn, signOut } from "next-auth/react";
 import { useAuthRequestChallengeSolana } from "@moralisweb3/next";
 import axios from "axios";
-
+let config
 export default function WalletAdaptor() {
   const { publicKey, signMessage, disconnecting, disconnect, connected } =
     useWallet();
@@ -25,7 +25,7 @@ export default function WalletAdaptor() {
 
     const response = await axios.post("http://127.0.0.1:8000/api/login/", {"public-key": publicKey, "signature" : signature, "msg": message});
     const token = response["data"]["access"]
-    const config = {
+    config = {
      headers: {
          'Content-Type': 'application/json', // Указывает, что тело запроса содержит JSON
         'Accept': 'application/json',
@@ -33,8 +33,17 @@ export default function WalletAdaptor() {
      }
     };
     const response2 = await axios.get("http://127.0.0.1:8000/api/ping/", config)
-    const news = await axios.get("http://127.0.0.1:8000/api/modules/", config)
-    console.log(news)
+    const transactionSignature = "29nph514pAbySqrX8mk3LUNJsnPiWkymFY3p32BvJmkMWq8WDNcADqerWHM6yuX5sWrbLheiUkUWCn5k3EjuoPm3"
+    try {
+        console.log(config)
+      const response = await axios.post('http://127.0.0.1:8000/api/confirm_transaction/', {
+        "transaction_public_key": transactionSignature,
+      }, config);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error checking transaction commitment:', error);
+    }
+    //console.log(user)
 
 
     try {
@@ -77,3 +86,4 @@ export default function WalletAdaptor() {
     </>
   );
 }
+

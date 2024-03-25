@@ -28,16 +28,11 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 
 class EvilerUserSerializer(serializers.ModelSerializer):
-   active_modules = serializers.SerializerMethodField()
-
    class Meta:
        model = EvilerUser
-       fields = ["id", "Discord", "active_modules"]
+       fields = ["id", "public_key", "email"]
 
-   def get_active_modules(self, obj):
-       """active_modules = ActiveModule.objects.filter(owner=obj)
-       return ActiveModuleSerializer(active_modules, many=True).data"""
-       return None
+
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
