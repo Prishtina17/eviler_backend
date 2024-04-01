@@ -1,3 +1,5 @@
+import uuid
+
 import django
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -39,7 +41,7 @@ class EvilerUser(AbstractUser):
     username = models.CharField(name="username", unique=True)
     password = models.CharField(name="password", null=True)
     email = models.EmailField(null=True)
-    #license_key = models.ForeignKey("LicenseKey",name="license_key", null=True, on_delete=models.CASCADE)
+    license_key = models.ForeignKey("LicenseKey",name="license_key", null=True, on_delete=models.CASCADE)
 
     public_key = models.CharField(name="public_key", max_length=44, default="", unique=True)
 
@@ -50,6 +52,8 @@ class EvilerUser(AbstractUser):
 
 
 class ActiveSession(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     fingerprint = models.CharField(name="fingerprint", default="None",max_length=64)
     expiration = models.DateTimeField(name="expiration",default = django.utils.timezone.now)
     owner = models.ForeignKey("LicenseKey", name="owner", on_delete=models.CASCADE)

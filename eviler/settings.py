@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import datetime
 from pathlib import Path
 
-
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +30,22 @@ DEBUG = True
 SOLANA_RPC_NODES = [
     "https://api.mainnet-beta.solana.com"
 ]
+
+# set the celery broker url
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+# set the celery result backend
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# set the celery timezone
+CELERY_TIMEZONE = 'UTC'
+
+CELERY_BEAT_SCHEDULE = {
+    'your_periodic_task_name': {
+        'task': 'api.tasks.delete_expired_sessions',
+        'schedule': crontab(minute='*/1'), # Запускать задачу каждые 5 минут
+    },
+}
 
 ASGI_APPLICATION = 'eviler.asgi.application'
 
@@ -94,7 +110,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "api",
     "corsheaders",
-    "rest_framework_simplejwt"
+    "rest_framework_simplejwt",
+    "celery"
 ]
 
 
@@ -185,9 +202,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

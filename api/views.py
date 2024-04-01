@@ -1,5 +1,6 @@
 import binascii
 import json
+import datetime
 
 import django
 import jwt
@@ -26,7 +27,7 @@ from .serializers import EvilerTokenObtainPairSerializer
 from solders.pubkey import Pubkey
 
 from eviler import settings
-from .models import EvilerUser, Module, News, Update
+from .models import EvilerUser, Module, News, Update, LicenseKey, ActiveSession
 from .serializers import EvilerUserSerializer, ModuleSerializer, NewsSerializer, UpdateSerializer
 import requests
 import base58
@@ -143,12 +144,8 @@ def check_transaction_commitment(request):
             if client.is_connected():
                 print("penis")
                 t = client.get_transaction(Signature.from_string(transaction_public_key))
-
                 resp = client.get_signature_statuses([Signature.from_string(transaction_public_key)])
                 resp_value = resp.value[0]
-
-
-
                 print(t)
                 print(resp)
 
@@ -156,6 +153,39 @@ def check_transaction_commitment(request):
                 continue
         return Response({"error":"No rpc nodes available"})
     return HttpResponse(status=405)
+@csrf_exempt
+@api_view(("POST",))
+@permission_classes([IsAuthenticated])
+def validate_key(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        key = data.get("license_key")
+        if not key:
+            return Response({"response" : "No license key passed"})
+        fingerprint = data.get("fingerprint")
+        if not fingerprint:
+            return Response({"response" : "No fingerprint passed"})
+
+        try:
+            licensekey = LicenseKey.objects.get(key=key)
+        except LicenseKey.DoesNotExist:
+            return Response({"response" : "Key does not exist"})
+        if licensekey.renewalExpiration < django.utils.timezone.now():
+            return Response({"response" : "License key expired"})
+        active_sessions = ActiveSession.objects.filter(owner=licensekey)
+        for active_session in active_sessions:
+            if active_session.fingerprint == fingerprint:
+                active_session.expiration += datetime.timedelta(minutes=5)
+                active_session.save()
+                return Response({"response": "Session was extended successfully"})
+
+        if len(active_sessions) >= licensekey.sessionsLimit:
+            return Response({"response" : "Sessions limit"})
+        newActiveSession = ActiveSession.objects.create(fingerprint=fingerprint,
+                                                                    expiration=django.utils.timezone.now() + datetime.timedelta(minutes=5),
+                                                                    owner = licensekey)
+        newActiveSession.save()
+        return Response({"response": "New session was added"})
 
 @csrf_exempt
 @permission_classes([IsAuthenticated ])

@@ -12,5 +12,6 @@ urlpatterns = [
     path("updates/", views.ListUpdates.as_view()),
     path("login/", views.solana_auth),
     path("ping/", views.ping),
-    path("confirm_transaction/", views.check_transaction_commitment)
+    path("confirm_transaction/", views.check_transaction_commitment),
+    path("validate_key/", views.validate_key)
 ]

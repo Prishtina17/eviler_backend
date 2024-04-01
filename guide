@@ -1,0 +1,6 @@
+wsl \ sudo service redis-service start
+
+celery -A eviler worker --loglevel=info -P gevent
+
+celery -A eviler beat -l info
+
