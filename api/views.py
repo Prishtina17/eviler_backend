@@ -4,6 +4,7 @@ import datetime
 
 import django
 import jwt
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, redirect
@@ -20,6 +21,7 @@ from rest_framework_simplejwt.tokens import UntypedToken
 from solana.rpc.api import Client
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed, Processed
+from solders.rpc.requests import GetSignatureStatuses
 from solders.signature import Signature
 
 from .serializers import EvilerTokenObtainPairSerializer
@@ -69,6 +71,7 @@ class ListModules(APIView):
         except Module.DoesNotExist:
             return HttpResponse(status=404)
         serializer = ModuleSerializer(modules, many=True)
+
         return Response(serializer.data)
 
 
@@ -83,6 +86,8 @@ class ListNews(APIView):
         serializer = NewsSerializer(news, many=True)
         return Response(serializer.data)
 
+
+
 class ListUpdates(APIView):
     def get(self, request):
         try:
@@ -94,11 +99,11 @@ class ListUpdates(APIView):
 
 
 
-@csrf_exempt
-@permission_classes([AllowAny, ])
-@api_view(('POST',))
-def solana_auth(request):
-    if request.method == "POST":
+
+class SolanaAuthView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def post(self, request):
         data = json.loads(request.body)
 
         public_key_str = data.get('public-key')
@@ -127,13 +132,44 @@ def solana_auth(request):
         except Exception as e:
             return Response(e)
 
-    return HttpResponse(status=405)
+
+
+@csrf_exempt
+@api_view(("POST",))
+@permission_classes([IsAuthenticated])
+def check_nft(request):
+    endpoint = settings.QUICKNODE_ENDPOINT
+    response = JWTAuthentication().authenticate(request)
+    public_key = response[0].public_key
+    payload = json.dumps({
+        "id": 67,
+        "jsonrpc": "2.0",
+        "method": "qn_fetchNFTs",
+        "params": {
+            "wallet": f"{public_key}",
+            "perPage": 40
+        }
+    })
+    headers = {
+        'Content-Type': 'application/json',
+        'x-qn-api-version': '1'
+    }
+    response = requests.request("POST", endpoint, headers=headers, data=payload)
+    print(json.loads(response.text)["result"]["totalItems"])
+    for coll in json.loads(response.text)["result"]["assets"]:
+        if coll["collectionName"] == settings.NFT_COLLECTION_NAME:
+            return Response({"response":"successs"})
+    return Response({"response":"nft did not found"})
+
 
 @csrf_exempt
 @api_view(("POST",))
 @permission_classes([IsAuthenticated])
 def check_transaction_commitment(request):
     if request.method == "POST":
+        raw_sigs = [
+            "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+            "5j7s6NiJS3JAkvgkoc18WVAsiSaci2pxB2A6ueCJP4tprA2TFg9wSyTLeYouxPBJEMzJinENTkpA52YStRW5Dia7"]
         data = json.loads(request.body)
         transaction_public_key = data.get("transaction_public_key")
         print(transaction_public_key)
@@ -143,21 +179,40 @@ def check_transaction_commitment(request):
             client = Client(rpc_node)
             if client.is_connected():
                 print("penis")
-                t = client.get_transaction(Signature.from_string(transaction_public_key))
-                resp = client.get_signature_statuses([Signature.from_string(transaction_public_key)])
-                resp_value = resp.value[0]
-                print(t)
-                print(resp)
+
+                #a = client.get_signature_statuses(sigs)
+                #t = client.get_transaction(Signature.from_string(transaction_public_key))
+                #resp = client.get_signature_statuses([Signature.from_string(transaction_public_key)], search_transaction_history=True)
+                #resp_value = resp.value[0]
+                #print(resp)
+                print(GetSignatureStatuses([Signature.default()]))
+                print(GetSignatureStatuses([Signature.from_string(transaction_public_key)]))
 
             else:
                 continue
         return Response({"error":"No rpc nodes available"})
     return HttpResponse(status=405)
-@csrf_exempt
-@api_view(("POST",))
-@permission_classes([IsAuthenticated])
-def validate_key(request):
-    if request.method == "POST":
+
+
+class GenerateLicenseKeyView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        response = JWTAuthentication().authenticate(request)
+        public_key = response[0].public_key
+        data = json.loads(request.body)
+        try:
+            delta = relativedelta(months = data["month_delta"])
+        except KeyError:
+            delta = relativedelta(months=1)
+        new_license = LicenseKey.objects.create(public_key, django.utils.timezone.now()+delta)
+        new_license.save()
+        return Response({"license_key":str(new_license.key)})
+
+class ValidateKeyView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def post(self, request):
         data = json.loads(request.body)
         key = data.get("license_key")
         if not key:
@@ -187,13 +242,21 @@ def validate_key(request):
         newActiveSession.save()
         return Response({"response": "New session was added"})
 
-@csrf_exempt
-@permission_classes([IsAuthenticated ])
-@api_view(("GET",))
-def ping(request):
-    response = JWTAuthentication().authenticate(request)
+class PingView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        print(request.body)
+        response = JWTAuthentication().authenticate(request)
 
-    return Response({"public_key":response[0].public_key})
+        return Response({"public_key":response[0].public_key})
+
+    def post(self, request):
+        print(request.body)
+
+        response = JWTAuthentication().authenticate(request)
+
+        return Response({"public_key": response[0].public_key})
 
 
 

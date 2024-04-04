@@ -32,6 +32,8 @@ export default function WalletAdaptor() {
         "Authorization": `Bearer ${token}`
      }
     };
+    console.log(token)
+    console.log(config)
     const response2 = await axios.get("http://127.0.0.1:8000/api/ping/", config)
     const transactionSignature = "29nph514pAbySqrX8mk3LUNJsnPiWkymFY3p32BvJmkMWq8WDNcADqerWHM6yuX5sWrbLheiUkUWCn5k3EjuoPm3"
     /*try {
@@ -43,7 +45,9 @@ export default function WalletAdaptor() {
     } catch (error) {
       console.error('Error checking transaction commitment:', error);
     }*/
-    const test1 = await axios.post("http://127.0.0.1:8000/api/validate_key/",{"license_key":"Test", "fingerprint":"bebra"}, config)
+    const prikol = await axios.post("http://127.0.0.1:8000/api/generate_license_key/",{}, config)
+    console.log(prikol)
+    /*const test1 = await axios.post("http://127.0.0.1:8000/api/validate_key/",{"license_key":"Test", "fingerprint":"bebra"}, config)
     const test2 = await axios.post("http://127.0.0.1:8000/api/validate_key/", {"license_key":"Test", "fingerprint":"bebra2"}, config)
         const test5 = await axios.post("http://127.0.0.1:8000/api/validate_key/", {"license_key":"Test", "fingerprint":"bebra3"}, config)
             const test6 = await axios.post("http://127.0.0.1:8000/api/validate_key/", {"license_key":"Test", "fingerprint":"bebra4"}, config)
@@ -57,9 +61,11 @@ export default function WalletAdaptor() {
     console.log(test2)
     console.log(test4)
     console.log(test6)
-
+    
     console.log(test3)
     console.log(test4)
+
+     */
     //console.log(user)
 
 

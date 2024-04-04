@@ -41,7 +41,6 @@ class EvilerUser(AbstractUser):
     username = models.CharField(name="username", unique=True)
     password = models.CharField(name="password", null=True)
     email = models.EmailField(null=True)
-    license_key = models.ForeignKey("LicenseKey",name="license_key", null=True, on_delete=models.CASCADE)
 
     public_key = models.CharField(name="public_key", max_length=44, default="", unique=True)
 
@@ -61,12 +60,16 @@ class ActiveSession(models.Model):
     def __str__(self):
         return getattr(self, "fingerprint") + "/" + str(getattr(self, "expiration"))
 
+class LicenseKeyManager(models.Manager):
+    def create(self, public_key, renewalExpiration):
+        key = uuid.uuid4()
+        return super().create(owner=EvilerUser.objects.get(public_key=public_key), renewalExpiration=renewalExpiration, key=key)
 class LicenseKey(models.Model):
-    key = models.CharField(max_length=64, default="None")
+    objects = LicenseKeyManager()
+    owner = models.ForeignKey(EvilerUser, name="owner",  null=True,on_delete=models.CASCADE)
+    key = models.CharField(name="key",max_length=64, default=uuid.uuid4(), unique=True)
     sessionsLimit = models.PositiveIntegerField(name="sessionsLimit", default=5)
     renewalExpiration = models.DateTimeField(name="renewalExpiration", default=django.utils.timezone.now)
-    #activeSessions = models.ForeignKey(ActiveSession, name="activeSessions", on_delete=models.CASCADE)
-
     def __str__(self):
         return getattr(self, "key") + "/" + str(getattr(self,"renewalExpiration"))
 

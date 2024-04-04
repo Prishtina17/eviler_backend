@@ -27,8 +27,13 @@ SECRET_KEY = 'django-insecure-e(q@2y(*t7426k6tz-^+vyvkd6xvk@-_b$%^x@nv&plysxs=yq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+NFT_COLLECTION_NAME = "Reviewers beta"
+
+QUICKNODE_ENDPOINT = "https://fittest-palpable-energy.solana-mainnet.quiknode.pro/90c80e20b7f922353fcf54f7fd222daf16a8f742/"
+
 SOLANA_RPC_NODES = [
-    "https://api.mainnet-beta.solana.com"
+    "https://api.mainnet-beta.solana.com",
+
 ]
 
 # set the celery broker url
@@ -139,6 +144,13 @@ ROOT_URLCONF = 'eviler.urls'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Encoding',
+    'Authorization',  # Добавьте 'Authorization' в список разрешенных заголовков
+    'Content-Type',
+    "Authorization",
+]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

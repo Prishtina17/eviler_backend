@@ -1,6 +1,41 @@
-wsl \ sudo service redis-service start
+wsl -d Ubuntu\ sudo service redis-service start
 
 celery -A eviler worker --loglevel=info -P gevent
 
 celery -A eviler beat -l info
+
+
+{'TERM_SESSION_ID': '7417291b-3334-4312-b45b-5fff42cc70bb', 'OPENSSL': 'C:\\Users\\prish\\Downloads\\openssl-0.9.8k_WIN32\\bin', 'PROGRAMW6432': 'C:\\Program Files', 'ZES_ENABLE_SYSMAN
+': '1', 'PYCHARM': 'C:\\Program Files\\JetBrains\\PyCharm 2022.3\\bin;', 'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files', 'USERNAME': 'prish', 'ALLUSERSPROFILE': 'C:\\ProgramDa
+ta', 'USERPROFILE': 'C:\\Users\\prish', 'PROCESSOR_REVISION': '8c01', 'IDEA_INITIAL_DIRECTORY': 'C:\\Program Files\\JetBrains\\PyCharm Community Edition 2022.3\\jbr\\bin', 'FPS_BROWSER
+_APP_PROFILE_STRING': 'Internet Explorer', 'PUBLIC': 'C:\\Users\\Public', 'PATH': 'C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Windows\\System32\\HWAudioDriverLib
+s;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\Administrator\\AppData\\Loc
+al\\Microsoft\\WindowsApps;C:\\Program Files\\Git\\cmd;C:\\Program Files\\PostgreSQL\\15\\bin;C:\\ProgramData\\chocolatey\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\
+Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\prish\\Downloads\\openssl-0.9.8k_WIN
+32\\bin;C:\\Program Files\\nodejs\\;C:\\Program Files (x86)\\Yarn\\bin\\;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Windows\\System32\\HWAudioDriverLibs;C:\\Wind
+ows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\Administrator\\AppData\\Local\\Micros
+oft\\WindowsApps;C:\\Program Files\\Git\\cmd;C:\\Program Files\\PostgreSQL\\15\\bin;C:\\ProgramData\\chocolatey\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\W
+INDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\prish\\Downloads\\openssl-0.9.8k_WIN32\\bin;C:
+\\Program Files\\nodejs\\;C:\\Program Files (x86)\\Yarn\\bin\\;C:\\Users\\prish\\AppData\\Local\\Programs\\Python\\Python39-32;C:\\Users\\prish\\AppData\\Local\\Programs\\Microsoft VS
+Code\\bin;C:\\Users\\prish\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\prish\\AppData\\Local\\Programs\\Python\\Python311\\Scripts;C:\\Users\\prish\\AppData\\Local\\GitHubDeskto
+p\\bin;C:\\Program Files\\OpenSSL-Win64\\bin;C:\\Users\\prish\\AppData\\Roaming\\npm;C:\\Users\\prish\\AppData\\Local\\Yarn\\bin', 'DRIVERDATA': 'C:\\Windows\\System32\\Drivers\\Driver
+Data', 'HOMEDRIVE': 'C:', 'SESSIONNAME': 'Console', 'LOGONSERVER': '\\\\UBERMENSCH', 'TERMINAL_EMULATOR': 'JetBrains-JediTerm', 'HOMEPATH': '\\Users\\prish', 'SYSTEMROOT': 'C:\\WINDOWS
+', 'CHOCOLATEYINSTALL': 'C:\\ProgramData\\chocolatey', 'LOCALAPPDATA': 'C:\\Users\\prish\\AppData\\Local', 'APPDATA': 'C:\\Users\\prish\\AppData\\Roaming', 'PROCESSOR_IDENTIFIER': 'Int
+el64 Family 6 Model 140 Stepping 1, GenuineIntel', 'PATHEXT': '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL', 'PSMODULEPATH': 'D:\\documents\\WindowsPowerShell\\Modules;C
+:\\Program Files\\WindowsPowerShell\\Modules;C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\Modules', 'PROGRAMFILES(X86)': 'C:\\Program Files (x86)', 'OS': 'Windows_NT', 'PROCESSOR_AR
+CHITECTURE': 'AMD64', 'NUMBER_OF_PROCESSORS': '4', 'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe', 'PROCESSOR_LEVEL': '6', 'PYCHARM COMMUNITY EDITION': 'C:\\Program Files\\JetBrains\\PyCh
+arm Community Edition 2022.3\\bin;', 'USERDOMAIN_ROAMINGPROFILE': 'UBERMENSCH', 'WINDIR': 'C:\\WINDOWS', 'PROGRAMFILES': 'C:\\Program Files', 'VBOX_MSI_INSTALL_PATH': 'C:\\Program File
+s\\Oracle\\VirtualBox\\', 'TEMP': 'C:\\Users\\prish\\AppData\\Local\\Temp', 'TMP': 'C:\\Users\\prish\\AppData\\Local\\Temp', 'EFC_8612': '1', 'ONEDRIVE': 'C:\\Users\\prish\\OneDrive',
+'ONEDRIVECONSUMER': 'C:\\Users\\prish\\OneDrive', 'USERDOMAIN': 'UBERMENSCH', 'SYSTEMDRIVE': 'C:', 'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files', 'COMPUTERNAME': '
+UBERMENSCH', 'PROGRAMDATA': 'C:\\ProgramData', 'CHOCOLATEYLASTPATHUPDATE': '133161239525942832', 'FPS_BROWSER_USER_PROFILE_STRING': 'Default', 'COMMONPROGRAMFILES': 'C:\\Program Files\
+\Common Files', '__INTELLIJ_COMMAND_HISTFILE__': 'C:\\Users\\prish\\AppData\\Local\\JetBrains\\PyCharmCE2022.3\\terminal\\history\\eviler_backend-master-history', 'DJANGO_SETTINGS_MODU
+LE': 'eviler.settings', 'RUN_MAIN': 'true', 'SERVER_NAME': 'kubernetes.docker.internal', 'GATEWAY_INTERFACE': 'CGI/1.1', 'SERVER_PORT': '8000', 'REMOTE_HOST': '', 'CONTENT_LENGTH': '32
+9', 'SCRIPT_NAME': '', 'SERVER_PROTOCOL': 'HTTP/1.1', 'SERVER_SOFTWARE': 'WSGIServer/0.2', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/api/ping/', 'QUERY_STRING': '', 'REMOTE_ADDR': '127.
+0.0.1', 'CONTENT_TYPE': 'application/json', 'HTTP_HOST': '127.0.0.1:8000', 'HTTP_CONNECTION': 'keep-alive', 'HTTP_SEC_CH_UA': '"Not A(Brand";v="99", "Opera GX";v="107", "Chromium";v="1
+21"', 'HTTP_ACCEPT': 'application/json, text/plain, */*', 'HTTP_SEC_CH_UA_MOBILE': '?0', 'HTTP_USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like G
+ecko) Chrome/121.0.0.0 Safari/537.36 OPR/107.0.0.0 (Edition Yx GX)', 'HTTP_SEC_CH_UA_PLATFORM': '"Windows"', 'HTTP_ORIGIN': 'http://localhost:3000', 'HTTP_SEC_FETCH_SITE': 'cross-site'
+, 'HTTP_SEC_FETCH_MODE': 'cors', 'HTTP_SEC_FETCH_DEST': 'empty', 'HTTP_REFERER': 'http://localhost:3000/', 'HTTP_ACCEPT_ENCODING': 'gzip, deflate, br', 'HTTP_ACCEPT_LANGUAGE': 'ru-RU,r
+u;q=0.9,en-US;q=0.8,en;q=0.7', 'wsgi.input': <django.core.handlers.wsgi.LimitedStream object at 0x0000012F03CE1FF0>, 'wsgi.errors': <_io.TextIOWrapper name='<stderr>' mode='w' encoding
+='utf-8'>, 'wsgi.version': (1, 0), 'wsgi.run_once': False, 'wsgi.url_scheme': 'http', 'wsgi.multithread': True, 'wsgi.multiprocess': False, 'wsgi.file_wrapper': <class 'wsgiref.util.FileWrapper'>}
+
 
