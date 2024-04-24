@@ -61,15 +61,19 @@ class ActiveSession(models.Model):
         return getattr(self, "fingerprint") + "/" + str(getattr(self, "expiration"))
 
 class LicenseKeyManager(models.Manager):
-    def create(self, public_key, renewalExpiration):
+    def create(self, public_key, nft_address,renewalExpiration=None,):
         key = uuid.uuid4()
-        return super().create(owner=EvilerUser.objects.get(public_key=public_key), renewalExpiration=renewalExpiration, key=key)
+        return super().create(owner=EvilerUser.objects.get(public_key=public_key),
+
+                              key=key,
+                              nftAddress=nft_address)
 class LicenseKey(models.Model):
     objects = LicenseKeyManager()
     owner = models.ForeignKey(EvilerUser, name="owner",  null=True,on_delete=models.CASCADE)
     key = models.CharField(name="key",max_length=64, default=uuid.uuid4(), unique=True)
     sessionsLimit = models.PositiveIntegerField(name="sessionsLimit", default=5)
     renewalExpiration = models.DateTimeField(name="renewalExpiration", default=django.utils.timezone.now)
+    nft_address = models.CharField(name="nftAddress", null=True, unique=True,max_length=64)
     def __str__(self):
         return getattr(self, "key") + "/" + str(getattr(self,"renewalExpiration"))
 

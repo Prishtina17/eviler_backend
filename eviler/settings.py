@@ -28,8 +28,9 @@ SECRET_KEY = 'django-insecure-e(q@2y(*t7426k6tz-^+vyvkd6xvk@-_b$%^x@nv&plysxs=yq
 DEBUG = True
 
 NFT_COLLECTION_NAME = "Reviewers beta"
+NFT_AUTHORITY = ""
 
-QUICKNODE_ENDPOINT = "https://fittest-palpable-energy.solana-mainnet.quiknode.pro/90c80e20b7f922353fcf54f7fd222daf16a8f742/"
+SOLANA_ACCOUNT = "2YHF9z7SUEJohEsT16aTsZ2WVHe7DguvKwGQFtuCzUTX"
 
 SOLANA_RPC_NODES = [
     "https://api.mainnet-beta.solana.com",

@@ -9,3 +9,5 @@ def delete_expired_sessions(*args):
     for session in active_sessions:
         if session.expiration < django.utils.timezone.now():
             session.delete()
+
+

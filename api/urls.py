@@ -12,7 +12,7 @@ urlpatterns = [
     path("updates/", views.ListUpdates.as_view()),
     path("login/", views.SolanaAuthView.as_view()),
     path("ping/", views.PingView.as_view()),
-    path("confirm_transaction/", views.check_transaction_commitment),
     path("validate_key/", views.ValidateKeyView.as_view()),
-    path("generate_license_key/", views.GenerateLicenseKeyView.as_view())
+    path("check_nft/", views.CheckNftView.as_view()),
+    path("check_transaction/", views.CheckTransactionView.as_view())
 ]

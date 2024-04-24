@@ -4,8 +4,9 @@ import datetime
 
 import django
 import jwt
+from asgiref.sync import sync_to_async, AsyncToSync
 from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, FieldError
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -24,6 +25,7 @@ from solana.rpc.commitment import Confirmed, Processed
 from solders.rpc.requests import GetSignatureStatuses
 from solders.signature import Signature
 
+from .check_nft import get_nfts
 from .serializers import EvilerTokenObtainPairSerializer
 
 from solders.pubkey import Pubkey
@@ -101,7 +103,6 @@ class ListUpdates(APIView):
 
 
 class SolanaAuthView(APIView):
-    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     def post(self, request):
         data = json.loads(request.body)
@@ -133,81 +134,54 @@ class SolanaAuthView(APIView):
             return Response(e)
 
 
-
-@csrf_exempt
-@api_view(("POST",))
-@permission_classes([IsAuthenticated])
-def check_nft(request):
-    endpoint = settings.QUICKNODE_ENDPOINT
-    response = JWTAuthentication().authenticate(request)
-    public_key = response[0].public_key
-    payload = json.dumps({
-        "id": 67,
-        "jsonrpc": "2.0",
-        "method": "qn_fetchNFTs",
-        "params": {
-            "wallet": f"{public_key}",
-            "perPage": 40
-        }
-    })
-    headers = {
-        'Content-Type': 'application/json',
-        'x-qn-api-version': '1'
-    }
-    response = requests.request("POST", endpoint, headers=headers, data=payload)
-    print(json.loads(response.text)["result"]["totalItems"])
-    for coll in json.loads(response.text)["result"]["assets"]:
-        if coll["collectionName"] == settings.NFT_COLLECTION_NAME:
-            return Response({"response":"successs"})
-    return Response({"response":"nft did not found"})
-
-
-@csrf_exempt
-@api_view(("POST",))
-@permission_classes([IsAuthenticated])
-def check_transaction_commitment(request):
-    if request.method == "POST":
-        raw_sigs = [
-            "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
-            "5j7s6NiJS3JAkvgkoc18WVAsiSaci2pxB2A6ueCJP4tprA2TFg9wSyTLeYouxPBJEMzJinENTkpA52YStRW5Dia7"]
-        data = json.loads(request.body)
-        transaction_public_key = data.get("transaction_public_key")
-        print(transaction_public_key)
-        rpc_nodes = settings.SOLANA_RPC_NODES
-        for rpc_node in rpc_nodes:
-            print(rpc_node)
-            client = Client(rpc_node)
-            if client.is_connected():
-                print("penis")
-
-                #a = client.get_signature_statuses(sigs)
-                #t = client.get_transaction(Signature.from_string(transaction_public_key))
-                #resp = client.get_signature_statuses([Signature.from_string(transaction_public_key)], search_transaction_history=True)
-                #resp_value = resp.value[0]
-                #print(resp)
-                print(GetSignatureStatuses([Signature.default()]))
-                print(GetSignatureStatuses([Signature.from_string(transaction_public_key)]))
-
-            else:
-                continue
-        return Response({"error":"No rpc nodes available"})
-    return HttpResponse(status=405)
-
-
-class GenerateLicenseKeyView(APIView):
-    authentication_classes = [JWTAuthentication]
+class CheckTransactionView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def post(self, request):
+        data = json.loads(request.body)
+        print(request.user)
+        client = Client("https://api.mainnet-beta.solana.com")
+        sigs = client.get_signatures_for_address(Pubkey.from_string(str(request.user)))
+        for sig in sigs.value:
+            print(sig)
+        return Response()
+class CheckNftView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    def post(self, request):
+
         response = JWTAuthentication().authenticate(request)
         public_key = response[0].public_key
-        data = json.loads(request.body)
-        try:
-            delta = relativedelta(months = data["month_delta"])
-        except KeyError:
-            delta = relativedelta(months=1)
-        new_license = LicenseKey.objects.create(public_key, django.utils.timezone.now()+delta)
-        new_license.save()
-        return Response({"license_key":str(new_license.key)})
+
+        public_key = "DywvRGQzikkTfgakuh76WGKru7FWHX3HnFgS1CUGzGQt"
+
+        nfts = get_nfts(public_key)
+        if nfts != []:
+            license_keys = []
+            mints = []
+            #Получает/генерирует лицензионные ключ на основе mint address полученных через rpc метод
+            #Удаляет лицензионный ключ, владелец нфт которого поменялся, создаёт новый ключ для текущего владельца нфт
+            for nft in nfts:
+                mints.append(nft["mint"])
+                try:
+                    license_key = LicenseKey.objects.get(nftAddress = nft["mint"])
+                    if license_key.owner != EvilerUser.objects.get(public_key = public_key):
+                        license_key.delete()
+                        license_key = LicenseKey.objects.create(public_key=public_key, nft_address=nft["mint"])
+                    license_keys.append({license_key.key:nft})
+                except ObjectDoesNotExist:
+                    try:
+                        license_keys.append({LicenseKey.objects.create(public_key=public_key, nft_address = nft["mint"]).key : nft})
+                    except ObjectDoesNotExist:
+                        EvilerUser.objects.create_user_from_public_key(public_key)
+                        license_keys.append({LicenseKey.objects.create(public_key=public_key, nft_address = nft["mint"]).key : nft})
+
+
+            return Response({"response":license_keys})
+
+
+        return Response({"response": "no nft found"})
+
 
 class ValidateKeyView(APIView):
     permission_classes = [IsAuthenticated]
@@ -223,7 +197,7 @@ class ValidateKeyView(APIView):
 
         try:
             licensekey = LicenseKey.objects.get(key=key)
-        except LicenseKey.DoesNotExist:
+        except ObjectDoesNotExist:
             return Response({"response" : "Key does not exist"})
         if licensekey.renewalExpiration < django.utils.timezone.now():
             return Response({"response" : "License key expired"})
@@ -246,13 +220,11 @@ class PingView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        print(request.body)
         response = JWTAuthentication().authenticate(request)
 
         return Response({"public_key":response[0].public_key})
 
     def post(self, request):
-        print(request.body)
 
         response = JWTAuthentication().authenticate(request)
 

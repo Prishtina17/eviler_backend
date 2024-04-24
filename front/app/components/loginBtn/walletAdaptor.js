@@ -22,7 +22,7 @@ export default function WalletAdaptor() {
     const encodedMessage = new TextEncoder().encode(message);
     const signedMessage = await signMessage(encodedMessage, "utf8");
     const signature = base58.encode(signedMessage);
-
+    console.log(publicKey)
     const response = await axios.post("http://127.0.0.1:8000/api/login/", {"public-key": publicKey, "signature" : signature, "msg": message});
     const token = response["data"]["access"]
     config = {
@@ -45,7 +45,7 @@ export default function WalletAdaptor() {
     } catch (error) {
       console.error('Error checking transaction commitment:', error);
     }*/
-    const prikol = await axios.post("http://127.0.0.1:8000/api/generate_license_key/",{}, config)
+    const prikol = await axios.post("http://127.0.0.1:8000/api/check_transaction/",{}, config)
     console.log(prikol)
     /*const test1 = await axios.post("http://127.0.0.1:8000/api/validate_key/",{"license_key":"Test", "fingerprint":"bebra"}, config)
     const test2 = await axios.post("http://127.0.0.1:8000/api/validate_key/", {"license_key":"Test", "fingerprint":"bebra2"}, config)
