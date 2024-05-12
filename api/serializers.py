@@ -11,20 +11,12 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken, SlidingToken
 
 from .auth import SolanaAuthentication
-from .models import EvilerUser,  Module, News, Update
+from .models import EvilerUser
 
 
 
 
-class ModuleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Module
-        fields = "__all__"
 
-"""class ActiveModuleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ActiveModule
-        fields = ["module", "expired_data"]"""
 
 
 class EvilerUserSerializer(serializers.ModelSerializer):
@@ -34,16 +26,6 @@ class EvilerUserSerializer(serializers.ModelSerializer):
 
 
 
-class NewsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = News
-        fields = "__all__"
-
-
-class UpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Update
-        fields = "__all__"
 
 
 class EvilerTokenObtainSerializer(serializers.Serializer):

@@ -5,14 +5,11 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils.safestring import mark_safe
-
+import eviler.settings as settings
 
 # Create your models here.
 
-class Module(models.Model):
-    name = models.CharField(name="Module Name", max_length=100)
-    def __str__(self):
-        return getattr(self, "Module Name")
+
 
 class EvilerUserManager(UserManager):
     def create_user_from_public_key(self, public_key):
@@ -61,21 +58,22 @@ class ActiveSession(models.Model):
         return getattr(self, "fingerprint") + "/" + str(getattr(self, "expiration"))
 
 class LicenseKeyManager(models.Manager):
-    def create(self, public_key, nft_address,renewalExpiration=None,):
+    def create(self, public_key, nft_address,renewalExpiration=None, sessions_limit=settings.DEFAULT_SESSIONS_LIMIT):
         key = uuid.uuid4()
         return super().create(owner=EvilerUser.objects.get(public_key=public_key),
-
                               key=key,
-                              nftAddress=nft_address)
+                              nftAddress=nft_address,
+                              renewalExpiration=renewalExpiration,
+                              sessionsLimit = sessions_limit)
 class LicenseKey(models.Model):
     objects = LicenseKeyManager()
     owner = models.ForeignKey(EvilerUser, name="owner",  null=True,on_delete=models.CASCADE)
-    key = models.CharField(name="key",max_length=64, default=uuid.uuid4(), unique=True)
-    sessionsLimit = models.PositiveIntegerField(name="sessionsLimit", default=5)
-    renewalExpiration = models.DateTimeField(name="renewalExpiration", default=django.utils.timezone.now)
+    key = models.UUIDField(default=uuid.uuid4(), unique=True)
+    sessionsLimit = models.PositiveIntegerField(name="sessionsLimit", default=settings.DEFAULT_SESSIONS_LIMIT)
+    renewalExpiration = models.DateTimeField(name="renewalExpiration", default=django.utils.timezone.now, null = True)
     nft_address = models.CharField(name="nftAddress", null=True, unique=True,max_length=64)
     def __str__(self):
-        return getattr(self, "key") + "/" + str(getattr(self,"renewalExpiration"))
+        return str(getattr(self, "key")) + "/" + str(getattr(self,"owner"))
 
 """class ActiveModule(models.Model):
     module = models.ForeignKey(Module, db_index=True, on_delete=models.PROTECT,null=True)
@@ -86,25 +84,4 @@ class LicenseKey(models.Model):
         return str(getattr(self, "owner"))+"/"+str(getattr(self, "module"))"""
 
 
-
-class ImageModel(models.Model):
-    image = models.ImageField(name="Image")
-
-
-class News(models.Model):
-    article = models.CharField(name="Article", max_length=100, default="article")
-    text = models.TextField(name="Text",default="text")
-    images = models.ManyToManyField(ImageModel, name="Images", null=True)
-    pub_date = models.DateField(default=django.utils.timezone.now)
-
-    def __str__(self):
-        return getattr(self, "Article")
-
-class Update(models.Model):
-    article = models.CharField(name="Article",max_length=500, default="Article")
-    pub_date = models.DateTimeField(default=django.utils.timezone.now)
-    file = models.FileField(upload_to="uploads/updates/")
-
-    def __str__(self):
-        return getattr(self, "Article")
 

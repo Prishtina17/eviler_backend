@@ -27,8 +27,12 @@ SECRET_KEY = 'django-insecure-e(q@2y(*t7426k6tz-^+vyvkd6xvk@-_b$%^x@nv&plysxs=yq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DEFAULT_SESSIONS_LIMIT = 5
+
 NFT_COLLECTION_NAME = "Reviewers beta"
 NFT_AUTHORITY = ""
+
+MORALIS_API = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImI4MTY5MGUxLWQxYzEtNGNiZS04Yzc3LWQ1MjBlMzVlZTZiNSIsIm9yZ0lkIjoiMzgyNDQxIiwidXNlcklkIjoiMzkyOTYzIiwidHlwZUlkIjoiYzYyZGU3OWUtNzM2Ni00YTBlLTkwODktZjEzZDBhZDY2MTEwIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MTAyNDkwMzIsImV4cCI6NDg2NjAwOTAzMn0.RbEgWtowVBgJjhAPxMuc5fqUMQ152h4dlj5hm54wyXE"
 
 SOLANA_ACCOUNT = "2YHF9z7SUEJohEsT16aTsZ2WVHe7DguvKwGQFtuCzUTX"
 

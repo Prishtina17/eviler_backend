@@ -16,12 +16,11 @@ class ActiveSessionInline(admin.TabularInline):
 class CustomUserAdmin(admin.ModelAdmin):
     inlines = [ActiveSessionInline]
 
-admin.site.register(Module)
+
+
 #admin.site.register(ActiveModule)
 #admin.site.register(EvilerUser, CustomUserAdmin)
 admin.site.register(EvilerUser)
 admin.site.register(LicenseKey, CustomUserAdmin)
 admin.site.register(ActiveSession)
-admin.site.register(ImageModel)
-admin.site.register(News)
-admin.site.register(Update)
+

@@ -45,7 +45,7 @@ export default function WalletAdaptor() {
     } catch (error) {
       console.error('Error checking transaction commitment:', error);
     }*/
-    const prikol = await axios.post("http://127.0.0.1:8000/api/check_transaction/",{}, config)
+    const prikol = await axios.post("http://127.0.0.1:8000/api/check_nft/",{}, config)
     console.log(prikol)
     /*const test1 = await axios.post("http://127.0.0.1:8000/api/validate_key/",{"license_key":"Test", "fingerprint":"bebra"}, config)
     const test2 = await axios.post("http://127.0.0.1:8000/api/validate_key/", {"license_key":"Test", "fingerprint":"bebra2"}, config)

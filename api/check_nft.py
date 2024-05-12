@@ -17,10 +17,62 @@ from construct import Struct as cStruct
 from solders.signature import Signature
 from spl.token._layouts import PUBLIC_KEY_LAYOUT
 from spl.token.client import Token
+from eviler.settings import MORALIS_API
 
+from moralis import sol_api
 
+#from eviler import settings
 
-from eviler import settings
+collection_symbol = "NB"
+def moralis_get_nft(public_key: str) -> list[dict]:
+    params = {
+        "network": "devnet",
+        "address": public_key
+    }
+
+    result = sol_api.account.get_nfts(
+        api_key=MORALIS_API,
+        params=params,
+    )
+    nfts_metadata = []
+    for token in result:
+        #print(token)
+        if token["symbol"] == collection_symbol:
+            params = {
+                "network": "devnet",
+                "address": str(token["mint"])
+            }
+            token_metadata = sol_api.nft.get_nft_metadata(
+                api_key=MORALIS_API,
+                params=params,
+            )
+            nfts_metadata.append(token_metadata)
+    #print(nfts_metadata)
+    return nfts_metadata
+
+async def async_fetch_url(url):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.text()
+                else:
+                    return f"Error: {response.status}"
+    except aiohttp.InvalidURL:
+        return "Invalid URL"
+def fetch_url(url):
+  try:
+    response = requests.get(url)
+    if response.status_code == 200:
+      return response.text
+    else:
+      raise requests.exceptions.RequestException
+      #return f"Error: {response.status_code}"
+  except requests.exceptions.RequestException as e:
+    return e
+
+#Deprecated methods to get nft metadata from solana api
+"""
 
 METADATA_PROGRAM_ID = Pubkey.from_string('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
 
@@ -98,28 +150,8 @@ def unpack_metadata_account(data):
         "is_mutable": is_mutable,
     }
     return metadata
-async def async_fetch_url(url):
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    return await response.text()
-                else:
-                    return f"Error: {response.status}"
-    except aiohttp.InvalidURL:
-        return "Invalid URL"
-def fetch_url(url):
-  try:
-    response = requests.get(url)
-    if response.status_code == 200:
-      return response.text
-    else:
-      return f"Error: {response.status_code}"
-  except requests.exceptions.RequestException as e:
-    if isinstance(e, requests.exceptions.InvalidURL):
-      return "Invalid URL"
-    else:
-      return f"Error: {e}"
+
+
 
 def get_nfts(user_public_key: str) -> list[dict]:
     #TODO: какого то хуя возвращает только 1 нфт, хотя должен 2
@@ -159,7 +191,7 @@ def get_nfts(user_public_key: str) -> list[dict]:
 
 def check_transaction():
     sol_value = "0.001"
-    client = Client("https://api.devnet.solana.com")
+    client = Client("http://186.233.184.93:8899")
     user = Pubkey.from_string("B2u6ibu8QQ71fcEVpPvwhG4wTU5rVF6KpZzDHcvgEnaX")
     sigs = client.get_signatures_for_address(user, limit =1)
     for sig in sigs.value:
@@ -176,5 +208,7 @@ def check_transaction():
         if (post[1] - pre[1]) == sol_value:
             print("succes")
 
+"""
+
 #print(asyncio.run(get_nfts("DywvRGQzikkTfgakuh76WGKru7FWHX3HnFgS1CUGzGQt")))
-check_transaction()
+#moralis_get_nft("DywvRGQzikkTfgakuh76WGKru7FWHX3HnFgS1CUGzGQt")
