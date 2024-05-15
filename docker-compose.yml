@@ -1,51 +1,62 @@
-version: '3.8'
-
 services:
   backend:
-    build: ./
-    command: >
-      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-
-    volumes:
-      - ./:/usr/src/backend/
-    stdin_open: true
-    tty: true
-    ports:
-      - "8000:8000"
-    networks:
-      - eviler-network
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: backend
+    restart: always
     env_file:
-      - ./.env
-    depends_on:
-      - db
-
-  frontend:
-    build: ./front
-
+      - .env
     ports:
-      - "3000:3000"
+      - ${API_PORT}:${API_PORT}
     networks:
       - eviler-network
     depends_on:
-      - backend
+      - pgbouncer
+    volumes:
+      - ./:/usr/src/app
 
-  db:
-    image: postgres:16.2-alpine
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+      - PGDATA='/var/lib/postgresql/data/pgdata'
+    networks:
+      - eviler-network
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASS}
+      - DB_HOST=postgres
+      - POOL_MODE=session
+      - MAX_DB_CONNECTIONS=0
+      - DEFAULT_POOL_SIZE=40
+      - ADMIN_USERS=postgres,${DB_USER}
+      - AUTH_TYPE=scram-sha-256
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    depends_on:
+      - postgres
     networks:
       - eviler-network
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5432:5432"
-
-volumes:
-  postgres-data:
-
 
 networks:
   eviler-network:
-    external: true
+    driver: bridge
+
+volumes:
+  postgres-data: {}

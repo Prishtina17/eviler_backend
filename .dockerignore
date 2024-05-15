@@ -1,0 +1,12 @@
+# ignore all files
+**
+
+# exclusion
+poetry.lock
+!/front/
+!/js-utils/
+!/logs/
+!/nftLicense/
+
+!/alembic.ini
+!/pyproject.toml

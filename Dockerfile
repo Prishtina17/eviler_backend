@@ -1,29 +1,32 @@
-FROM python:3.11-alpine
+FROM python:3.11-alpine3.19
 
-WORKDIR /usr/src/backend
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=0 \
+    POETRY_HOME="/etc/poetry" \
+    POETRY_CACHE_DIR="/tmp/poetry_cache" \
+    POETRY_VERSION=1.7.0
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev libffi-dev
-
-RUN pip install --upgrade pip
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
-RUN apk --no-cache add \
-    icu-dev \
-    gettext \
-    gettext-dev
-
-COPY ./entrypoint.sh .
-RUN sed -i 's/\r$//g' /usr/src/backend/entrypoint.sh
-RUN chmod +x /usr/src/backend/entrypoint.sh
+WORKDIR /usr/src/app
 
 COPY . .
 
-EXPOSE 8000
-# [Security] Limit the scope of user who run the docker image
+RUN apk update 
+RUN apk add --no-cache --virtual .dev gcc musl-dev libffi-dev
+RUN apk add --no-cache cargo rust
 
 
-ENTRYPOINT ["/usr/src/backend/entrypoint.sh"]
+RUN cargo init \
+    && pip install maturin \
+    && pip install --no-cache-dir "poetry==$POETRY_VERSION" 
+RUN poetry config installer.max-workers 10
+RUN poetry install --no-interaction --no-ansi -vvv 
+RUN pip uninstall -y poetry \
+    && rm -rf /root/.cache \
+    && rm -rf $POETRY_CACHE_DIR \
+    && adduser -D appuser \
+    && chown -R appuser:appuser .
+
+USER appuser
+
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]

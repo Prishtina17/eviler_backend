@@ -10,9 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import datetime
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 from celery.schedules import crontab
+
+load_dotenv('../.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -105,7 +109,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '.vercel.app', '127.0.0.1', '0.0.0.0']
 
 
 
@@ -158,7 +162,7 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:8000",
 ]
 
 TEMPLATES = [
@@ -186,11 +190,11 @@ WSGI_APPLICATION = 'eviler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': "postgres",
-        'HOST': 'localhost',   #db
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASS'),
+        'HOST': os.getenv('DB_HOST'),   #db
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
